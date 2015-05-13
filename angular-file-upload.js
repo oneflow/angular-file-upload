@@ -1,6 +1,6 @@
 /*
- angular-file-upload v1.1.5
- https://github.com/nervgh/angular-file-upload
+ angular-file-upload v1.1.6
+ https://github.com/oneflow/angular-file-upload
 */
 (function(angular, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -506,13 +506,14 @@ module
                         xhr.setRequestHeader(name, value);
                     });
 
+                    
                     if(!item.directUpload) {
                         xhr.send(form);
                     } else {
-                        xhr.send(_item.file);
+                        xhr.send(item._file);
                     }
                     
-                    this._render();
+                    that._render();
                 });
             };
             /**

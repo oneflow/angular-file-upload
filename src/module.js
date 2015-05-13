@@ -490,13 +490,14 @@ module
                         xhr.setRequestHeader(name, value);
                     });
 
+                    
                     if(!item.directUpload) {
                         xhr.send(form);
                     } else {
-                        xhr.send(_item.file);
+                        xhr.send(item._file);
                     }
                     
-                    this._render();
+                    that._render();
                 });
             };
             /**
