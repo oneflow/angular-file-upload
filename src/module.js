@@ -450,6 +450,8 @@ module
                         });
                     });
 
+
+
                     form.append(item.alias, item._file, item.file.name);
 
                     xhr.upload.onprogress = function(event) {
@@ -488,7 +490,12 @@ module
                         xhr.setRequestHeader(name, value);
                     });
 
-                    xhr.send(form);
+                    if(!item.directUpload) {
+                        xhr.send(form);
+                    } else {
+                        xhr.send(_item.file);
+                    }
+                    
                     this._render();
                 });
             };
@@ -600,7 +607,7 @@ module
              */
             FileUploader.prototype._onBeforeUploadItem = function(item) {
                 item._onBeforeUpload();
-                this.onBeforeUploadItem(item);
+                return this.onBeforeUploadItem(item);
             };
             /**
              * Inner callback
