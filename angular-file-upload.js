@@ -459,54 +459,54 @@ module
                 var form = new FormData();
                 var that = this;
 
-                that._onBeforeUploadItem(item);
-
-                angular.forEach(item.formData, function(obj) {
-                    angular.forEach(obj, function(value, key) {
-                        form.append(key, value);
+                that._onBeforeUploadItem(item).then(function (item) {
+                    angular.forEach(item.formData, function(obj) {
+                        angular.forEach(obj, function(value, key) {
+                            form.append(key, value);
+                        });
                     });
+
+                    form.append(item.alias, item._file, item.file.name);
+
+                    xhr.upload.onprogress = function(event) {
+                        var progress = Math.round(event.lengthComputable ? event.loaded * 100 / event.total : 0);
+                        that._onProgressItem(item, progress);
+                    };
+
+                    xhr.onload = function() {
+                        var headers = that._parseHeaders(xhr.getAllResponseHeaders());
+                        var response = that._transformResponse(xhr.response, headers);
+                        var gist = that._isSuccessCode(xhr.status) ? 'Success' : 'Error';
+                        var method = '_on' + gist + 'Item';
+                        that[method](item, response, xhr.status, headers);
+                        that._onCompleteItem(item, response, xhr.status, headers);
+                    };
+
+                    xhr.onerror = function() {
+                        var headers = that._parseHeaders(xhr.getAllResponseHeaders());
+                        var response = that._transformResponse(xhr.response, headers);
+                        that._onErrorItem(item, response, xhr.status, headers);
+                        that._onCompleteItem(item, response, xhr.status, headers);
+                    };
+
+                    xhr.onabort = function() {
+                        var headers = that._parseHeaders(xhr.getAllResponseHeaders());
+                        var response = that._transformResponse(xhr.response, headers);
+                        that._onCancelItem(item, response, xhr.status, headers);
+                        that._onCompleteItem(item, response, xhr.status, headers);
+                    };
+
+                    xhr.open(item.method, item.url, true);
+
+                    xhr.withCredentials = item.withCredentials;
+
+                    angular.forEach(item.headers, function(value, name) {
+                        xhr.setRequestHeader(name, value);
+                    });
+
+                    xhr.send(form);
+                    this._render();
                 });
-
-                form.append(item.alias, item._file, item.file.name);
-
-                xhr.upload.onprogress = function(event) {
-                    var progress = Math.round(event.lengthComputable ? event.loaded * 100 / event.total : 0);
-                    that._onProgressItem(item, progress);
-                };
-
-                xhr.onload = function() {
-                    var headers = that._parseHeaders(xhr.getAllResponseHeaders());
-                    var response = that._transformResponse(xhr.response, headers);
-                    var gist = that._isSuccessCode(xhr.status) ? 'Success' : 'Error';
-                    var method = '_on' + gist + 'Item';
-                    that[method](item, response, xhr.status, headers);
-                    that._onCompleteItem(item, response, xhr.status, headers);
-                };
-
-                xhr.onerror = function() {
-                    var headers = that._parseHeaders(xhr.getAllResponseHeaders());
-                    var response = that._transformResponse(xhr.response, headers);
-                    that._onErrorItem(item, response, xhr.status, headers);
-                    that._onCompleteItem(item, response, xhr.status, headers);
-                };
-
-                xhr.onabort = function() {
-                    var headers = that._parseHeaders(xhr.getAllResponseHeaders());
-                    var response = that._transformResponse(xhr.response, headers);
-                    that._onCancelItem(item, response, xhr.status, headers);
-                    that._onCompleteItem(item, response, xhr.status, headers);
-                };
-
-                xhr.open(item.method, item.url, true);
-
-                xhr.withCredentials = item.withCredentials;
-
-                angular.forEach(item.headers, function(value, name) {
-                    xhr.setRequestHeader(name, value);
-                });
-
-                xhr.send(form);
-                this._render();
             };
             /**
              * The IFrame transport
